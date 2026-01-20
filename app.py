@@ -5,7 +5,7 @@ import sklearn
 
 
 
-pipeline = joblib.load(r'D:\DOWNLOADS\Downloads Note\Giovanni_DADOS\Projetos\TC4-obesitiy-model\TC4-obesity-model\model\obesity_model_pipeline.joblib')
+pipeline = joblib.load('obesity_model_pipeline.joblib')
 
 st.title("Obesity Level Prediction")
 st.write("Enter your details to predict your obesity level.")
@@ -16,17 +16,16 @@ with st.form("Questionare"):
 
     family_history= st.selectbox("Histórico Familiar de sobrepeso",["yes","no"])
     frequent_fast_food= st.selectbox("Consumo frequente de fast food",["yes","no"])
-    frequent_vegetables= st.selectbox("Consumo Frequente de Vegetais",["yes","no"])
-    number_of_meals = st.number_input("Número de refeições por dia (1-4)", min_value=1, max_value=4,step=1)
-    food_between_meals=st.selectbox("Consumo de alimentos entre as refeições",["yes","no"])
+    frequent_vegetables= st.number_input("Consumo Frequente de Vegetais(1-3)", min_value=1, max_value=3,step=1)
+    number_of_meals = st.number_input("Número de refeições por dia (1-3)", min_value=1, max_value=3,step=1)
+    food_between_meals=st.selectbox("Consumo de alimentos entre as refeições",["Sometimes","Frequently","Always","no"])
     smokes=st.selectbox("Fuma",["yes","no"])
     water_intake=st.number_input("Consumo de água diário (1-3)", min_value=1, max_value=3,step=1)
     alcohol_consumption=st.selectbox("Consumo de bebidas alcoólicas",["yes","no"])
     physical_activity_frequency=st.number_input("Frequência de atividade física (0-3)", min_value=0, max_value=3,step=1)
     time_spent_exercising=st.number_input("Tempo gasto em atividades físicas (0-3)", min_value=0, max_value=3,step=1)
-    time_spent_sitting=st.number_input("Tempo gasto em atividades sedentárias (1-3)", min_value=1, max_value=3,step=1)
+    time_spent_sitting=st.selectbox("Frequencia em atividades sedentárias (1-3)",['Sometimes', 'Frequently', 'Always', 'no'])
     transportation_mode=st.selectbox("Meio de transporte utilizado",["Automobile","Motorbike","Bike","Public_Transportation","Walking"])
-
 
 
 
@@ -62,9 +61,16 @@ if submit_button:
 
         st.success(f"Resultado da análise:{prediction}")
 
-        if prediction in (4,5,6):
+        if prediction in (0,1,2):
+            st.info("Nível de obesidade baixo. Mantenha um estilo de vida saudável!")
+        elif prediction ==3:
+            st.info("Nível de obesidade moderado. Considere adotar hábitos mais saudáveis.")
+        elif prediction in (4,5,6):
             st.warning("Recomenda-se consultar um profissional de saúde para orientação adequada.")
+
+ 
     except Exception as e:
-        prediction= pipeline.predict(input_data)[0]
+        
+        
         st.error(f"Ocorreu um erro durante a predição: {e,prediction}")
         st.warning("Por favor, verifique os dados e tente novamente.")
