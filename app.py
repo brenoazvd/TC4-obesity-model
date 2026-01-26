@@ -5,7 +5,9 @@ import joblib
 import sklearn
 from sklearn.inspection import PartialDependenceDisplay
 from matplotlib import pyplot as plt
+
 import seaborn as sns
+
 @st.cache_data
 def load_dataset():
     data = pd.read_csv('Obesity.csv')
@@ -164,11 +166,9 @@ with tab_dashboard:
         features=nomes_features, # Vamos varrer pelos índices
         feature_names=nomes_features, # Nomes das colunas
         target=6, # Focando na Classe 6 (Obesidade Grave)
-
         ax=ax
     )
 
-    plt.suptitle('Como FAF e FCVC impactam o risco de Obesidade Tipo III', fontsize=16)
-    plt.show()
 
-   
+    st.pyplot(fig)
+    
