@@ -44,8 +44,8 @@ def load_dataset():
 
 pipeline = joblib.load('obesity_model_pipeline.joblib')
 
-st.title("Obesity Level Prediction")
-st.write("Enter your details to predict your obesity level.")
+st.title("Predicao de Nivel de Obesidade")
+st.write("Preencha os dados para prever o nivel de obesidade.")
 
 
 # O comando retorna dois objetos que guardamos em 'tab_simulador' e 'tab_dashboard'
@@ -56,28 +56,54 @@ tab_simulador, tab_dashboard = st.tabs(["Simulador", "Dashboard"])
 with tab_simulador:
     st.header("Simulador de Nivel de Obesidade")
     with st.form("Questionario"):
-        gender = st.selectbox("Genero",['Male','Female'])
+        gender_map = {"Masculino": "Male", "Feminino": "Female"}
+        gender_label = st.selectbox("Genero", list(gender_map.keys()))
+        gender = gender_map[gender_label]
         age = st.number_input("Idade", min_value=1, max_value=120,value=25)
 
-        family_history= st.selectbox("Historico familiar de sobrepeso",["yes","no"])
-        frequent_fast_food= st.selectbox("Consumo frequente de fast food",["yes","no"])
+        yes_no_map = {"Sim": "yes", "Nao": "no"}
+        family_history_label = st.selectbox("Historico familiar de sobrepeso", list(yes_no_map.keys()))
+        family_history = yes_no_map[family_history_label]
+        frequent_fast_food_label = st.selectbox("Consumo frequente de fast food", list(yes_no_map.keys()))
+        frequent_fast_food = yes_no_map[frequent_fast_food_label]
         escala_1_3 = {"Baixo": 1, "Medio": 2, "Alto": 3}
         escala_0_3 = {"Nenhum": 0, "Baixo": 1, "Medio": 2, "Alto": 3}
         frequent_vegetables_label = st.selectbox("Consumo frequente de vegetais", list(escala_1_3.keys()))
         frequent_vegetables = escala_1_3[frequent_vegetables_label]
         number_of_meals_label = st.selectbox("Numero de refeicoes por dia", list(escala_1_3.keys()))
         number_of_meals = escala_1_3[number_of_meals_label]
-        food_between_meals=st.selectbox("Consumo de alimentos entre as refeicoes",["Sometimes","Frequently","Always","no"])
-        smokes=st.selectbox("Fuma",["yes","no"])
+        between_meals_map = {
+            "Nunca": "no",
+            "As vezes": "Sometimes",
+            "Frequente": "Frequently",
+            "Sempre": "Always",
+        }
+        food_between_meals_label = st.selectbox("Consumo de alimentos entre as refeicoes", list(between_meals_map.keys()))
+        food_between_meals = between_meals_map[food_between_meals_label]
+        smokes_label = st.selectbox("Fuma", list(yes_no_map.keys()))
+        smokes = yes_no_map[smokes_label]
         water_intake_label = st.selectbox("Consumo de agua diario", list(escala_1_3.keys()))
         water_intake = escala_1_3[water_intake_label]
-        alcohol_consumption=st.selectbox("Consumo de bebidas alcoolicas",["yes","no"])
+        alcohol_consumption_label = st.selectbox("Consumo de bebidas alcoolicas", list(yes_no_map.keys()))
+        alcohol_consumption = yes_no_map[alcohol_consumption_label]
         physical_activity_frequency_label = st.selectbox("Frequencia de atividade fisica", list(escala_0_3.keys()))
         physical_activity_frequency = escala_0_3[physical_activity_frequency_label]
         time_spent_exercising_label = st.selectbox("Tempo gasto em atividades fisicas", list(escala_0_3.keys()))
         time_spent_exercising = escala_0_3[time_spent_exercising_label]
-        time_spent_sitting=st.selectbox("Frequencia em atividades sedentarias",['Sometimes', 'Frequently', 'Always', 'no'])
-        transportation_mode=st.selectbox("Meio de transporte utilizado",["Automobile","Motorbike","Bike","Public_Transportation","Walking"])
+        time_spent_sitting_label = st.selectbox(
+            "Frequencia em atividades sedentarias",
+            list(between_meals_map.keys()),
+        )
+        time_spent_sitting = between_meals_map[time_spent_sitting_label]
+        transport_map = {
+            "Automovel": "Automobile",
+            "Moto": "Motorbike",
+            "Bicicleta": "Bike",
+            "Transporte publico": "Public_Transportation",
+            "Caminhando": "Walking",
+        }
+        transport_label = st.selectbox("Meio de transporte utilizado", list(transport_map.keys()))
+        transportation_mode = transport_map[transport_label]
 
 
 
@@ -293,7 +319,7 @@ with tab_dashboard:
             sns.barplot(x=perc_sim.index, y=perc_sim.values, ax=ax_fh, palette="Greens")
             ax_fh.set_xlabel("Nivel de obesidade")
             ax_fh.set_ylabel("% com historico familiar")
-            ax_fh.set_title("Historico familiar por nivel de obesidade")
+        ax_fh.set_title("Historico familiar por nivel de obesidade")
             ax_fh.tick_params(axis="x", labelrotation=20)
             st.pyplot(fig_fh)
             st.caption(
