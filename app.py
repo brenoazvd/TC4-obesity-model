@@ -56,46 +56,51 @@ tab_simulador, tab_dashboard = st.tabs(["Simulador", "Dashboard"])
 with tab_simulador:
     st.header("Simulador de Nivel de Obesidade")
     with st.form("Questionario"):
+        def required_select(label, options):
+            opts = ["Selecione..."] + options
+            choice = st.selectbox(label, opts, index=0)
+            return None if choice == "Selecione..." else choice
+
         gender_map = {"Masculino": "Male", "Feminino": "Female"}
-        gender_label = st.selectbox("Genero", list(gender_map.keys()))
-        gender = gender_map[gender_label]
+        gender_label = required_select("Genero", list(gender_map.keys()))
+        gender = gender_map.get(gender_label) if gender_label else None
         age = st.number_input("Idade", min_value=1, max_value=120,value=25)
 
         yes_no_map = {"Sim": "yes", "Nao": "no"}
-        family_history_label = st.selectbox("Historico familiar de sobrepeso", list(yes_no_map.keys()))
-        family_history = yes_no_map[family_history_label]
-        frequent_fast_food_label = st.selectbox("Consumo frequente de fast food", list(yes_no_map.keys()))
-        frequent_fast_food = yes_no_map[frequent_fast_food_label]
+        family_history_label = required_select("Historico familiar de sobrepeso", list(yes_no_map.keys()))
+        family_history = yes_no_map.get(family_history_label) if family_history_label else None
+        frequent_fast_food_label = required_select("Consumo frequente de fast food", list(yes_no_map.keys()))
+        frequent_fast_food = yes_no_map.get(frequent_fast_food_label) if frequent_fast_food_label else None
         escala_1_3 = {"Baixo": 1, "Medio": 2, "Alto": 3}
         escala_0_3 = {"Nenhum": 0, "Baixo": 1, "Medio": 2, "Alto": 3}
-        escala_0_2 = {"Nenhum": 0, "Baixo": 1, "Medio": 2}
-        frequent_vegetables_label = st.selectbox("Consumo frequente de vegetais", list(escala_1_3.keys()))
-        frequent_vegetables = escala_1_3[frequent_vegetables_label]
-        number_of_meals_label = st.selectbox("Numero de refeicoes por dia", list(escala_1_3.keys()))
-        number_of_meals = escala_1_3[number_of_meals_label]
+        escala_0_2 = {"Baixo": 0, "Medio": 1, "Alto": 2}
+        frequent_vegetables_label = required_select("Consumo frequente de vegetais", list(escala_1_3.keys()))
+        frequent_vegetables = escala_1_3.get(frequent_vegetables_label) if frequent_vegetables_label else None
+        number_of_meals_label = required_select("Numero de refeicoes por dia", list(escala_1_3.keys()))
+        number_of_meals = escala_1_3.get(number_of_meals_label) if number_of_meals_label else None
         between_meals_map = {
             "Nunca": "no",
             "As vezes": "Sometimes",
             "Frequente": "Frequently",
             "Sempre": "Always",
         }
-        food_between_meals_label = st.selectbox("Consumo de alimentos entre as refeicoes", list(between_meals_map.keys()))
-        food_between_meals = between_meals_map[food_between_meals_label]
-        smokes_label = st.selectbox("Fuma", list(yes_no_map.keys()))
-        smokes = yes_no_map[smokes_label]
-        water_intake_label = st.selectbox("Consumo de agua diario", list(escala_1_3.keys()))
-        water_intake = escala_1_3[water_intake_label]
-        alcohol_consumption_label = st.selectbox("Consumo de bebidas alcoolicas", list(yes_no_map.keys()))
-        alcohol_consumption = yes_no_map[alcohol_consumption_label]
-        physical_activity_frequency_label = st.selectbox("Frequencia de atividade fisica", list(escala_0_3.keys()))
-        physical_activity_frequency = escala_0_3[physical_activity_frequency_label]
-        time_spent_exercising_label = st.selectbox("Tempo em telas (0-2)", list(escala_0_2.keys()))
-        time_spent_exercising = escala_0_2[time_spent_exercising_label]
-        time_spent_sitting_label = st.selectbox(
+        food_between_meals_label = required_select("Consumo de alimentos entre as refeicoes", list(between_meals_map.keys()))
+        food_between_meals = between_meals_map.get(food_between_meals_label) if food_between_meals_label else None
+        smokes_label = required_select("Fuma", list(yes_no_map.keys()))
+        smokes = yes_no_map.get(smokes_label) if smokes_label else None
+        water_intake_label = required_select("Consumo de agua diario", list(escala_1_3.keys()))
+        water_intake = escala_1_3.get(water_intake_label) if water_intake_label else None
+        alcohol_consumption_label = required_select("Consumo de bebidas alcoolicas", list(yes_no_map.keys()))
+        alcohol_consumption = yes_no_map.get(alcohol_consumption_label) if alcohol_consumption_label else None
+        physical_activity_frequency_label = required_select("Frequencia de atividade fisica", list(escala_0_3.keys()))
+        physical_activity_frequency = escala_0_3.get(physical_activity_frequency_label) if physical_activity_frequency_label else None
+        time_spent_exercising_label = required_select("Tempo em telas (0-2)", list(escala_0_2.keys()))
+        time_spent_exercising = escala_0_2.get(time_spent_exercising_label) if time_spent_exercising_label else None
+        time_spent_sitting_label = required_select(
             "Frequencia em atividades sedentarias",
             list(between_meals_map.keys()),
         )
-        time_spent_sitting = between_meals_map[time_spent_sitting_label]
+        time_spent_sitting = between_meals_map.get(time_spent_sitting_label) if time_spent_sitting_label else None
         transport_map = {
             "Automovel": "Automobile",
             "Moto": "Motorbike",
@@ -103,8 +108,8 @@ with tab_simulador:
             "Transporte publico": "Public_Transportation",
             "Caminhando": "Walking",
         }
-        transport_label = st.selectbox("Meio de transporte utilizado", list(transport_map.keys()))
-        transportation_mode = transport_map[transport_label]
+        transport_label = required_select("Meio de transporte utilizado", list(transport_map.keys()))
+        transportation_mode = transport_map.get(transport_label) if transport_label else None
 
 
 
@@ -115,6 +120,24 @@ with tab_simulador:
 
 
     if submit_button:
+        required_fields = [
+            gender,
+            family_history,
+            frequent_fast_food,
+            frequent_vegetables,
+            number_of_meals,
+            food_between_meals,
+            smokes,
+            water_intake,
+            alcohol_consumption,
+            physical_activity_frequency,
+            time_spent_exercising,
+            time_spent_sitting,
+            transportation_mode,
+        ]
+        if any(v is None for v in required_fields):
+            st.error("Preencha todos os campos obrigatorios antes de calcular.")
+            st.stop()
         input_data= pd.DataFrame({
             'Gender':[gender],
             'Age':[age],
