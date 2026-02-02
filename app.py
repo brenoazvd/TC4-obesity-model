@@ -137,15 +137,11 @@ with tab_dashboard:
     st.caption("Fatores com maior influencia no modelo (nao indica causalidade).")
     top3 = df_imp['Feature'].head(3).tolist()
     st.markdown(
-        "Insights (equipe medica):
-"
-        "- Principais variaveis do modelo: " + ", ".join(top3) + ".
-"
-        "- Use como triagem: avaliar comportamento alimentar e atividade fisica.
-"
+        "Insights (equipe medica):\n"
+        f"- Principais variaveis do modelo: {', '.join(top3)}.\n"
+        "- Use como triagem: avaliar comportamento alimentar e atividade fisica.\n"
         "- Importancia do modelo nao e causalidade; validar clinicamente."
     )
-    st.markdown("---")
 
     st.subheader("2. Distribuicao dos niveis de obesidade na base")
     data,X = load_dataset()
