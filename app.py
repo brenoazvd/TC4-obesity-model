@@ -150,10 +150,10 @@ with tab_dashboard:
     fig1, ax1 = plt.subplots(figsize=(10, 6))
     sns.barplot(data=df_imp, x='Importance', y='Feature_label', palette='viridis',hue='Feature_label', dodge=False)
     ax1.set_title("Top 10 Fatores de Risco")
-    ax1.set_xlabel("Importancia no modelo")
-    ax1.set_ylabel("Variavel")
+    ax1.set_xlabel("Importancia (quanto maior, mais influencia)")
+    ax1.set_ylabel("Fator")
     st.pyplot(fig1)
-    st.caption("Fatores com maior influencia no modelo (nao indica causalidade). Rotulos simplificados para leitura.")
+    st.caption("Fatores com maior influencia no resultado (nao indica causalidade).")
     top3 = df_imp['Feature_label'].head(3).tolist()
     st.markdown(
         "Insights (equipe medica):\n"
@@ -163,8 +163,8 @@ with tab_dashboard:
     )
     st.markdown(
         "Interpretacao curta:\n"
-        "- Quanto maior a barra, maior a contribuicao da variavel para a previsao.\n"
-        "- Variaveis do topo merecem atencao em protocolos de triagem."
+        "- Quanto maior a barra, maior a influencia no resultado.\n"
+        "- Fatores do topo merecem atencao em protocolos de triagem."
     )
 
     st.subheader("2. Distribuicao dos niveis de obesidade na base")
