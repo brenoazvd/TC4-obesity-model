@@ -159,14 +159,14 @@ with tab_dashboard:
     st.caption("Classes mais frequentes podem influenciar a predicao do modelo.")
 
     # 1. Configurar o que queremos ver
-    # Vamos ver o impacto da "Atividade Fisica" (FAF) e "Vegetais" (FCVC)
-    features_para_ver = ['num__FAF', 'num__FCVC'] 
-
-    # Precisamos pegar os nomes corretos que sairam do transformer
-    # Se der erro de nome, imprima 'nomes_features' para conferir
+    # Usar indices para evitar erro de nome nas features
     nomes_features = step_preprocessor.get_feature_names_out()
-
-    print("Gerando grafico de dependencia parcial (efeito do modelo)...")
+    nomes_lower = [n.lower() for n in nomes_features]
+    idx_vegetais = next((i for i, n in enumerate(nomes_lower) if "vegetais" in n), None)
+    idx_atividade = next((i for i, n in enumerate(nomes_lower) if "atividade" in n and "sedent" not in n), None)
+    pdp_features = [i for i in [idx_atividade, idx_vegetais] if i is not None]
+    if len(pdp_features) < 2:
+        pdp_features = list(range(min(2, len(nomes_features))))
 
     # 2. Plotar
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -174,15 +174,16 @@ with tab_dashboard:
 
     # A classe 6 e a Obesidade Tipo III (o caso grave)
     # Se o seu modelo for binario ou diferente, ajuste o target.
-    display = PartialDependenceDisplay.from_estimator(
-        step_model,                # Sua Random Forest
-        step_preprocessor.transform(X_sample), # Dados transformados (amostra)
-        features=features_para_ver, # Apenas duas features para nao travar
-        feature_names=nomes_features, # Nomes das colunas
-        target=6, # Focando na Classe 6 (Obesidade Grave)
-        ax=ax
-    )
-
-
-    st.pyplot(fig)
-    st.caption("Grafico de dependencia parcial para duas variaveis chave.")
+    try:
+        PartialDependenceDisplay.from_estimator(
+            step_model,                # Sua Random Forest
+            step_preprocessor.transform(X_sample), # Dados transformados (amostra)
+            features=pdp_features, # Apenas duas features para nao travar
+            feature_names=nomes_features, # Nomes das colunas
+            target=6, # Focando na Classe 6 (Obesidade Grave)
+            ax=ax
+        )
+        st.pyplot(fig)
+        st.caption("Grafico de dependencia parcial para duas variaveis chave.")
+    except Exception as e:
+        st.warning(f"Nao foi possivel gerar o grafico de dependencia parcial: {e}")
