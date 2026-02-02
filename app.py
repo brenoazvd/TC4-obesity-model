@@ -73,7 +73,6 @@ with tab_simulador:
         frequent_fast_food = yes_no_map.get(frequent_fast_food_label) if frequent_fast_food_label else None
         escala_1_3 = {"Baixo": 1, "Medio": 2, "Alto": 3}
         escala_0_3 = {"Nenhum": 0, "Baixo": 1, "Medio": 2, "Alto": 3}
-        escala_0_2 = {"Baixo": 0, "Medio": 1, "Alto": 2}
         frequent_vegetables_label = required_select("Consumo frequente de vegetais", list(escala_1_3.keys()))
         frequent_vegetables = escala_1_3.get(frequent_vegetables_label) if frequent_vegetables_label else None
         number_of_meals_label = required_select("Numero de refeicoes por dia", list(escala_1_3.keys()))
@@ -94,8 +93,7 @@ with tab_simulador:
         alcohol_consumption = yes_no_map.get(alcohol_consumption_label) if alcohol_consumption_label else None
         physical_activity_frequency_label = required_select("Frequencia de atividade fisica", list(escala_0_3.keys()))
         physical_activity_frequency = escala_0_3.get(physical_activity_frequency_label) if physical_activity_frequency_label else None
-        time_spent_exercising_label = required_select("Tempo em telas (0-2)", list(escala_0_2.keys()))
-        time_spent_exercising = escala_0_2.get(time_spent_exercising_label) if time_spent_exercising_label else None
+        time_spent_exercising = st.slider("Tempo em telas (0-2)", min_value=0.0, max_value=2.0, value=1.0, step=0.1)
         time_spent_sitting_label = required_select(
             "Frequencia em atividades sedentarias",
             list(between_meals_map.keys()),
