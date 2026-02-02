@@ -169,12 +169,23 @@ with tab_dashboard:
 
     st.subheader("2. Distribuicao dos niveis de obesidade na base")
     data,X = load_dataset()
-    fig2, ax2 = plt.subplots(figsize=(8, 5))
+    fig2, ax2 = plt.subplots(figsize=(10, 5))
+    class_map = {
+        "Insufficient_Weight": "Abaixo do peso",
+        "Normal_Weight": "Peso normal",
+        "Overweight_Level_I": "Sobrepeso I",
+        "Overweight_Level_II": "Sobrepeso II",
+        "Obesity_Type_I": "Obesidade I",
+        "Obesity_Type_II": "Obesidade II",
+        "Obesity_Type_III": "Obesidade III",
+    }
     dist = data['Obesity'].value_counts().sort_index()
-    sns.barplot(x=dist.index.astype(str), y=dist.values, ax=ax2, palette='viridis')
-    ax2.set_xlabel("Classe de Obesidade")
+    labels = [class_map.get(str(x), str(x)) for x in dist.index]
+    sns.barplot(x=labels, y=dist.values, ax=ax2, palette='viridis')
+    ax2.set_xlabel("Nivel de obesidade")
     ax2.set_ylabel("Quantidade")
     ax2.set_title("Distribuicao das classes na base")
+    ax2.tick_params(axis="x", labelrotation=20)
     st.pyplot(fig2)
     st.caption("Classes mais frequentes podem influenciar a predicao do modelo.")
 
