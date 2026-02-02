@@ -227,24 +227,33 @@ with tab_dashboard:
         }
         df_plot["Obesity_pt"] = df_plot["Obesity"].map(class_map_pt).fillna(df_plot["Obesity"].astype(str))
 
-        fig3, ax3 = plt.subplots(figsize=(10, 4))
+        # Linhas com poucos niveis para facilitar leitura
+        niveis_foco = ["Obesidade III", "Obesidade II", "Sobrepeso II"]
+
+        fig3, ax3 = plt.subplots(figsize=(8, 4))
         tab_faf = pd.crosstab(df_plot["faf_bin"], df_plot["Obesity_pt"], normalize="index") * 100
         tab_faf = tab_faf.reindex(columns=class_map_pt.values(), fill_value=0)
-        tab_faf.plot(kind="bar", stacked=True, ax=ax3, colormap="viridis", legend=False)
+        for nivel in niveis_foco:
+            if nivel in tab_faf.columns:
+                ax3.plot(tab_faf.index, tab_faf[nivel], marker="o", label=nivel)
         ax3.set_xlabel("Atividade fisica (0-3)")
         ax3.set_ylabel("% das pessoas")
-        ax3.set_title("Atividade fisica x distribuicao dos niveis")
+        ax3.set_title("Atividade fisica x niveis mais altos")
+        ax3.legend()
         st.pyplot(fig3)
 
-        fig4, ax4 = plt.subplots(figsize=(10, 4))
+        fig4, ax4 = plt.subplots(figsize=(8, 4))
         tab_fcvc = pd.crosstab(df_plot["fcvc_bin"], df_plot["Obesity_pt"], normalize="index") * 100
         tab_fcvc = tab_fcvc.reindex(columns=class_map_pt.values(), fill_value=0)
-        tab_fcvc.plot(kind="bar", stacked=True, ax=ax4, colormap="viridis", legend=False)
+        for nivel in niveis_foco:
+            if nivel in tab_fcvc.columns:
+                ax4.plot(tab_fcvc.index, tab_fcvc[nivel], marker="o", label=nivel)
         ax4.set_xlabel("Consumo de vegetais (1-3)")
         ax4.set_ylabel("% das pessoas")
-        ax4.set_title("Vegetais x distribuicao dos niveis")
+        ax4.set_title("Vegetais x niveis mais altos")
+        ax4.legend()
         st.pyplot(fig4)
 
-        st.caption("Cada barra soma 100%. Ajuda a ver a mistura de niveis por habito.")
+        st.caption("Linhas mostram a porcentagem de niveis mais altos por habito.")
     else:
         st.warning("Nao foi possivel localizar as colunas de atividade fisica e vegetais na base.")
