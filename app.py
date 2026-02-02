@@ -116,53 +116,68 @@ with tab_simulador:
 with tab_dashboard:
 
 
-    st.header("Dashboard de Análise de Obesidade")
-    st.write("Análise Explicativa do Modelo")
+    st.header("Dashboard de Analise de Obesidade")
+    st.write("Analise explicativa do modelo + insights para equipe de saude")
     # Acessar os passos do pipeline
     step_model = pipeline.named_steps['model']
-    step_preprocessor = pipeline.named_steps['scaling'] # Ou 'preprocessor', confira seu código
+    step_preprocessor = pipeline.named_steps['scaling'] # Ou 'preprocessor', confira seu codigo
     
     feature_names = step_preprocessor.get_feature_names_out()
-    # Gráfico 1: Importância das Features
+    # Grafico 1: Importancia das features
     st.subheader("1. O que mais impacta o risco?")
     importances = step_model.feature_importances_
     df_imp = pd.DataFrame({'Feature': feature_names, 'Importance': importances})
     df_imp = df_imp.sort_values(by='Importance', ascending=False).head(10)
-
-    
 
     # Plotar
     fig1, ax1 = plt.subplots(figsize=(10, 6))
     sns.barplot(data=df_imp, x='Importance', y='Feature', palette='viridis',hue='Feature', dodge=False)
     ax1.set_title("Top 10 Fatores de Risco")
     st.pyplot(fig1)
-    st.caption("Fatores que mais influenciam a classificação de Obesidade Tipo III.")
+    st.caption("Fatores com maior influencia no modelo (nao indica causalidade).")
+    top3 = df_imp['Feature'].head(3).tolist()
+    st.markdown(
+        "Insights (equipe medica):
+"
+        "- Principais variaveis do modelo: " + ", ".join(top3) + ".
+"
+        "- Use como triagem: avaliar comportamento alimentar e atividade fisica.
+"
+        "- Importancia do modelo nao e causalidade; validar clinicamente."
+    )
     st.markdown("---")
 
-    st.subheader("2. Distribuição dos Níveis de Obesidade na Base de Dados")
+    st.subheader("2. Distribuicao dos niveis de obesidade na base")
     data,X = load_dataset()
     fig2, ax2 = plt.subplots(figsize=(8, 5))
-    
+    dist = data['Obesity'].value_counts().sort_index()
+    sns.barplot(x=dist.index.astype(str), y=dist.values, ax=ax2, palette='viridis')
+    ax2.set_xlabel("Classe de Obesidade")
+    ax2.set_ylabel("Quantidade")
+    ax2.set_title("Distribuicao das classes na base")
+    st.pyplot(fig2)
+    st.caption("Classes mais frequentes podem influenciar a predicao do modelo.")
 
     # 1. Configurar o que queremos ver
-    # Vamos ver o impacto da "Atividade Física" (FAF) e "Vegetais" (FCVC)
+    # Vamos ver o impacto da "Atividade Fisica" (FAF) e "Vegetais" (FCVC)
     features_para_ver = ['num__FAF', 'num__FCVC'] 
 
-    # Precisamos pegar os nomes corretos que saíram do transformer
+    # Precisamos pegar os nomes corretos que sairam do transformer
     # Se der erro de nome, imprima 'nomes_features' para conferir
     nomes_features = step_preprocessor.get_feature_names_out()
 
-    print("Gerando gráfico de Dependência Parcial (Causa e Efeito)...")
+    print("Gerando grafico de dependencia parcial (efeito do modelo)...")
 
     # 2. Plotar
-    fig, ax = plt.subplots(figsize=(12, 20))
+    fig, ax = plt.subplots(figsize=(10, 6))
+    X_sample = X.sample(n=min(500, len(X)), random_state=42)
 
-    # A classe 6 é a Obesidade Tipo III (o caso grave)
-    # Se o seu modelo for binário ou diferente, ajuste o target.
+    # A classe 6 e a Obesidade Tipo III (o caso grave)
+    # Se o seu modelo for binario ou diferente, ajuste o target.
     display = PartialDependenceDisplay.from_estimator(
         step_model,                # Sua Random Forest
-        step_preprocessor.transform(X), # Seus dados transformados
-        features=nomes_features, # Vamos varrer pelos índices
+        step_preprocessor.transform(X_sample), # Dados transformados (amostra)
+        features=features_para_ver, # Apenas duas features para nao travar
         feature_names=nomes_features, # Nomes das colunas
         target=6, # Focando na Classe 6 (Obesidade Grave)
         ax=ax
@@ -170,4 +185,4 @@ with tab_dashboard:
 
 
     st.pyplot(fig)
-    
+    st.caption("Grafico de dependencia parcial para duas variaveis chave.")
