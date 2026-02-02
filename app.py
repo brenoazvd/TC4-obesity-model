@@ -123,19 +123,36 @@ with tab_dashboard:
     step_preprocessor = pipeline.named_steps['scaling'] # Ou 'preprocessor', confira seu codigo
     
     feature_names = step_preprocessor.get_feature_names_out()
+    feature_label_map = {
+        "scaler__Age": "Idade",
+        "scaler__Frequência de consumo de vegetais": "Frequencia de vegetais",
+        "scaler__Número de refeições por dia": "Numero de refeicoes/dia",
+        "scaler__Consumo de água diário": "Consumo de agua diario",
+        "scaler__Frequência de atividade física": "Frequencia de atividade fisica",
+        "scaler__Tempo gasto em atividades físicas": "Tempo em atividade fisica",
+        "categorical__Gender": "Genero",
+        "categorical__family_history": "Historico familiar",
+        "categorical__Consumo de alimentos com alto teor calórico": "Fast food frequente",
+        "categorical__Fuma": "Fuma",
+        "categorical__Consumo de bebidas alcoólicas": "Consumo de alcool",
+        "categorical__Meio de transporte utilizado": "Meio de transporte",
+        "categorical_order__Consumo de alimentos entre as refeições": "Comer entre refeicoes",
+        "categorical_order__Tempo gasto em atividades sedentárias": "Tempo sedentario",
+    }
     # Grafico 1: Importancia das features
     st.subheader("1. O que mais impacta o risco?")
     importances = step_model.feature_importances_
     df_imp = pd.DataFrame({'Feature': feature_names, 'Importance': importances})
+    df_imp["Feature_label"] = df_imp["Feature"].map(feature_label_map).fillna(df_imp["Feature"])
     df_imp = df_imp.sort_values(by='Importance', ascending=False).head(10)
 
     # Plotar
     fig1, ax1 = plt.subplots(figsize=(10, 6))
-    sns.barplot(data=df_imp, x='Importance', y='Feature', palette='viridis',hue='Feature', dodge=False)
+    sns.barplot(data=df_imp, x='Importance', y='Feature_label', palette='viridis',hue='Feature_label', dodge=False)
     ax1.set_title("Top 10 Fatores de Risco")
     st.pyplot(fig1)
-    st.caption("Fatores com maior influencia no modelo (nao indica causalidade).")
-    top3 = df_imp['Feature'].head(3).tolist()
+    st.caption("Fatores com maior influencia no modelo (nao indica causalidade). Rotulos simplificados para leitura.")
+    top3 = df_imp['Feature_label'].head(3).tolist()
     st.markdown(
         "Insights (equipe medica):\n"
         f"- Principais variaveis do modelo: {', '.join(top3)}.\n"
