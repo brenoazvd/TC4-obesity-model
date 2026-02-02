@@ -150,6 +150,8 @@ with tab_dashboard:
     fig1, ax1 = plt.subplots(figsize=(10, 6))
     sns.barplot(data=df_imp, x='Importance', y='Feature_label', palette='viridis',hue='Feature_label', dodge=False)
     ax1.set_title("Top 10 Fatores de Risco")
+    ax1.set_xlabel("Importancia no modelo")
+    ax1.set_ylabel("Variavel")
     st.pyplot(fig1)
     st.caption("Fatores com maior influencia no modelo (nao indica causalidade). Rotulos simplificados para leitura.")
     top3 = df_imp['Feature_label'].head(3).tolist()
@@ -158,6 +160,11 @@ with tab_dashboard:
         f"- Principais variaveis do modelo: {', '.join(top3)}.\n"
         "- Use como triagem: avaliar comportamento alimentar e atividade fisica.\n"
         "- Importancia do modelo nao e causalidade; validar clinicamente."
+    )
+    st.markdown(
+        "Interpretacao curta:\n"
+        "- Quanto maior a barra, maior a contribuicao da variavel para a previsao.\n"
+        "- Variaveis do topo merecem atencao em protocolos de triagem."
     )
 
     st.subheader("2. Distribuicao dos niveis de obesidade na base")
