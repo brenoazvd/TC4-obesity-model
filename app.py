@@ -191,7 +191,7 @@ with tab_dashboard:
 
     # 3. Relacao simples entre habitos e nivel de obesidade
     st.subheader("3. Relacao simples entre habitos e nivel de obesidade")
-    st.caption("Media do nivel de obesidade por habito (visao simples).")
+    st.caption("Distribuicao percentual por habito (mais facil de ler).")
     # localizar colunas de forma robusta
     cols_lower = {c.lower(): c for c in data.columns}
     col_faf = next((c for c in data.columns if "atividade" in c.lower() and "frequ" in c.lower()), None)
@@ -212,25 +212,39 @@ with tab_dashboard:
         data_score["obesity_score"] = data_score["Obesity"].map(score_map)
 
         # Agrupar por faixas discretas para evitar poluicao visual
-        df_plot = data_score.copy()
+        df_plot = data.copy()
         df_plot["faf_bin"] = df_plot[col_faf].round().clip(0, 3).astype(int)
         df_plot["fcvc_bin"] = df_plot[col_fcvc].round().clip(1, 3).astype(int)
 
-        fig3, ax3 = plt.subplots(figsize=(8, 4))
-        faf_mean = df_plot.groupby("faf_bin")["obesity_score"].mean().reset_index()
-        sns.barplot(data=faf_mean, x="faf_bin", y="obesity_score", ax=ax3, palette="viridis")
+        class_map_pt = {
+            "Insufficient_Weight": "Abaixo do peso",
+            "Normal_Weight": "Peso normal",
+            "Overweight_Level_I": "Sobrepeso I",
+            "Overweight_Level_II": "Sobrepeso II",
+            "Obesity_Type_I": "Obesidade I",
+            "Obesity_Type_II": "Obesidade II",
+            "Obesity_Type_III": "Obesidade III",
+        }
+        df_plot["Obesity_pt"] = df_plot["Obesity"].map(class_map_pt).fillna(df_plot["Obesity"].astype(str))
+
+        fig3, ax3 = plt.subplots(figsize=(10, 4))
+        tab_faf = pd.crosstab(df_plot["faf_bin"], df_plot["Obesity_pt"], normalize="index") * 100
+        tab_faf = tab_faf.reindex(columns=class_map_pt.values(), fill_value=0)
+        tab_faf.plot(kind="bar", stacked=True, ax=ax3, colormap="viridis", legend=False)
         ax3.set_xlabel("Atividade fisica (0-3)")
-        ax3.set_ylabel("Nivel medio de obesidade")
-        ax3.set_title("Atividade fisica x nivel medio")
+        ax3.set_ylabel("% das pessoas")
+        ax3.set_title("Atividade fisica x distribuicao dos niveis")
         st.pyplot(fig3)
 
-        fig4, ax4 = plt.subplots(figsize=(8, 4))
-        fcvc_mean = df_plot.groupby("fcvc_bin")["obesity_score"].mean().reset_index()
-        sns.barplot(data=fcvc_mean, x="fcvc_bin", y="obesity_score", ax=ax4, palette="viridis")
+        fig4, ax4 = plt.subplots(figsize=(10, 4))
+        tab_fcvc = pd.crosstab(df_plot["fcvc_bin"], df_plot["Obesity_pt"], normalize="index") * 100
+        tab_fcvc = tab_fcvc.reindex(columns=class_map_pt.values(), fill_value=0)
+        tab_fcvc.plot(kind="bar", stacked=True, ax=ax4, colormap="viridis", legend=False)
         ax4.set_xlabel("Consumo de vegetais (1-3)")
-        ax4.set_ylabel("Nivel medio de obesidade")
-        ax4.set_title("Vegetais x nivel medio")
+        ax4.set_ylabel("% das pessoas")
+        ax4.set_title("Vegetais x distribuicao dos niveis")
         st.pyplot(fig4)
-        st.caption("Quanto menor o nivel medio, melhor. Grafico serve como indicio, nao prova causa.")
+
+        st.caption("Cada barra soma 100%. Ajuda a ver a mistura de niveis por habito.")
     else:
         st.warning("Nao foi possivel localizar as colunas de atividade fisica e vegetais na base.")
