@@ -68,6 +68,7 @@ with tab_simulador:
         frequent_fast_food = yes_no_map[frequent_fast_food_label]
         escala_1_3 = {"Baixo": 1, "Medio": 2, "Alto": 3}
         escala_0_3 = {"Nenhum": 0, "Baixo": 1, "Medio": 2, "Alto": 3}
+        escala_0_2 = {"Nenhum": 0, "Baixo": 1, "Medio": 2}
         frequent_vegetables_label = st.selectbox("Consumo frequente de vegetais", list(escala_1_3.keys()))
         frequent_vegetables = escala_1_3[frequent_vegetables_label]
         number_of_meals_label = st.selectbox("Numero de refeicoes por dia", list(escala_1_3.keys()))
@@ -88,8 +89,8 @@ with tab_simulador:
         alcohol_consumption = yes_no_map[alcohol_consumption_label]
         physical_activity_frequency_label = st.selectbox("Frequencia de atividade fisica", list(escala_0_3.keys()))
         physical_activity_frequency = escala_0_3[physical_activity_frequency_label]
-        time_spent_exercising_label = st.selectbox("Tempo gasto em atividades fisicas", list(escala_0_3.keys()))
-        time_spent_exercising = escala_0_3[time_spent_exercising_label]
+        time_spent_exercising_label = st.selectbox("Tempo em telas (0-2)", list(escala_0_2.keys()))
+        time_spent_exercising = escala_0_2[time_spent_exercising_label]
         time_spent_sitting_label = st.selectbox(
             "Frequencia em atividades sedentarias",
             list(between_meals_map.keys()),
@@ -333,7 +334,7 @@ with tab_dashboard:
         fig_tue, ax_tue = plt.subplots(figsize=(10, 4))
         sns.boxplot(data=df_plot, x="Obesity_pt", y=col_tue, order=order_pt, ax=ax_tue)
         ax_tue.set_xlabel("Nivel de obesidade")
-        ax_tue.set_ylabel("Tempo em telas (TUE)")
+        ax_tue.set_ylabel("Tempo em telas (0-2)")
         ax_tue.set_title("Obesidade x uso de tecnologia (TUE)")
         ax_tue.tick_params(axis="x", labelrotation=20)
         st.pyplot(fig_tue)
