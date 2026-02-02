@@ -253,7 +253,8 @@ with tab_dashboard:
         tab_ch2o = pd.crosstab(df_plot["Obesity_pt"], df_plot["ch2o_bin"], normalize="index") * 100
         tab_ch2o = tab_ch2o.reindex(index=order_pt, fill_value=0)
         fig_ch2o, ax_ch2o = plt.subplots(figsize=(10, 4))
-        tab_ch2o.plot(kind="bar", stacked=True, ax=ax_ch2o, colormap="Blues", legend=True)
+        ch2o_colors = ["#e0f3f8", "#abd9e9", "#74add1"]
+        tab_ch2o.plot(kind="bar", stacked=True, ax=ax_ch2o, color=ch2o_colors, legend=True)
         ax_ch2o.set_xlabel("Nivel de obesidade")
         ax_ch2o.set_ylabel("% das pessoas")
         ax_ch2o.set_title("Obesidade x consumo de agua")
