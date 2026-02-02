@@ -252,22 +252,25 @@ with tab_dashboard:
             "Interpretacao: baixo consumo hidrico aparece mais em niveis elevados."
         )
 
-    # 4) Obesidade x historico familiar - barras agrupadas
+    # 4) Obesidade x historico familiar - % com historico familiar
     if col_fh:
         tab_fh = pd.crosstab(df_plot["Obesity_pt"], df_plot[col_fh], normalize="index") * 100
         tab_fh = tab_fh.reindex(index=order_pt, fill_value=0)
         tab_fh = tab_fh.rename(columns={"yes": "Sim", "no": "Nao"})
-        fig_fh, ax_fh = plt.subplots(figsize=(10, 4))
-        tab_fh.plot(kind="bar", ax=ax_fh, colormap="Greens", legend=True)
-        ax_fh.set_xlabel("Nivel de obesidade")
-        ax_fh.set_ylabel("% das pessoas")
-        ax_fh.set_title("Obesidade x historico familiar")
-        ax_fh.tick_params(axis="x", labelrotation=20)
-        ax_fh.legend(title="Historico familiar", loc="upper right")
-        st.pyplot(fig_fh)
-        st.caption(
-            "Interpretacao: historico familiar aparece com maior frequencia em casos mais graves."
-        )
+        perc_sim = tab_fh["Sim"] if "Sim" in tab_fh.columns else None
+        if perc_sim is not None:
+            fig_fh, ax_fh = plt.subplots(figsize=(10, 4))
+            sns.barplot(x=perc_sim.index, y=perc_sim.values, ax=ax_fh, palette="Greens")
+            ax_fh.set_xlabel("Nivel de obesidade")
+            ax_fh.set_ylabel("% com historico familiar")
+            ax_fh.set_title("Historico familiar por nivel de obesidade")
+            ax_fh.tick_params(axis="x", labelrotation=20)
+            st.pyplot(fig_fh)
+            st.caption(
+                "Interpretacao: maior % com historico familiar nos niveis mais graves."
+            )
+        else:
+            st.warning("Nao foi possivel calcular o historico familiar.")
 
     # 5) Obesidade x uso de tecnologia (TUE) - boxplot
     if col_tue:
