@@ -7,20 +7,32 @@ from matplotlib import pyplot as plt
 
 import seaborn as sns
 
+COL_FAVC = "Consumo de alimentos com alto teor cal\u00f3rico"
+COL_FCVC = "Frequ\u00eancia de consumo de vegetais"
+COL_NCP = "N\u00famero de refei\u00e7\u00f5es por dia"
+COL_CAEC = "Consumo de alimentos entre as refei\u00e7\u00f5es"
+COL_SMOKE = "Fuma"
+COL_SCC = "Consumo de bebidas alco\u00f3licas"
+COL_FAF = "Frequ\u00eancia de atividade f\u00edsica"
+COL_TUE = "Tempo gasto em atividades f\u00edsicas"
+COL_CALC = "Tempo gasto em atividades sedent\u00e1rias"
+COL_MTRANS = "Meio de transporte utilizado"
+COL_CH2O = "Consumo de \u00e1gua di\u00e1rio"
+
 @st.cache_data
 def load_dataset():
     data = pd.read_csv('Obesity.csv')
-    ajusta_nomes={"FAVC": "Consumo de alimentos com alto teor calórico",
-                  "FCVC": "Frequência de consumo de vegetais",
-                  "NCP": "Número de refeições por dia",
-                  "CAEC": "Consumo de alimentos entre as refeições",
-                  "SMOKE": "Fuma",
-                  "SCC": "Consumo de bebidas alcoólicas",
-                  "FAF": "Frequência de atividade física",
-                  "TUE": "Tempo gasto em atividades físicas",
-                  "CALC": "Tempo gasto em atividades sedentárias",
-                  "MTRANS": "Meio de transporte utilizado",
-                  "CH2O": "Consumo de água diário"
+    ajusta_nomes={"FAVC": COL_FAVC,
+                  "FCVC": COL_FCVC,
+                  "NCP": COL_NCP,
+                  "CAEC": COL_CAEC,
+                  "SMOKE": COL_SMOKE,
+                  "SCC": COL_SCC,
+                  "FAF": COL_FAF,
+                  "TUE": COL_TUE,
+                  "CALC": COL_CALC,
+                  "MTRANS": COL_MTRANS,
+                  "CH2O": COL_CH2O
                   }
 
                     
@@ -37,34 +49,34 @@ st.write("Enter your details to predict your obesity level.")
 
 
 # O comando retorna dois objetos que guardamos em 'tab_simulador' e 'tab_dashboard'
-tab_simulador, tab_dashboard = st.tabs(["🧬 Simulador", "📊 Dashboard"])
+tab_simulador, tab_dashboard = st.tabs(["Simulador", "Dashboard"])
 
 
 
 with tab_simulador:
-    st.header("Simulador de Nível de Obesidade")
-    with st.form("Questionare"):
-        gender = st.selectbox("Gênero",['Male','Female'])
+    st.header("Simulador de Nivel de Obesidade")
+    with st.form("Questionario"):
+        gender = st.selectbox("Genero",['Male','Female'])
         age = st.number_input("Idade", min_value=1, max_value=120,value=25)
 
-        family_history= st.selectbox("Histórico Familiar de sobrepeso",["yes","no"])
+        family_history= st.selectbox("Historico familiar de sobrepeso",["yes","no"])
         frequent_fast_food= st.selectbox("Consumo frequente de fast food",["yes","no"])
-        frequent_vegetables= st.number_input("Consumo Frequente de Vegetais(1-3)", min_value=1, max_value=3,step=1)
-        number_of_meals = st.number_input("Número de refeições por dia (1-3)", min_value=1, max_value=3,step=1)
-        food_between_meals=st.selectbox("Consumo de alimentos entre as refeições",["Sometimes","Frequently","Always","no"])
+        frequent_vegetables= st.number_input("Consumo frequente de vegetais (1-3)", min_value=1, max_value=3,step=1)
+        number_of_meals = st.number_input("Numero de refeicoes por dia (1-3)", min_value=1, max_value=3,step=1)
+        food_between_meals=st.selectbox("Consumo de alimentos entre as refeicoes",["Sometimes","Frequently","Always","no"])
         smokes=st.selectbox("Fuma",["yes","no"])
-        water_intake=st.number_input("Consumo de água diário (1-3)", min_value=1, max_value=3,step=1)
-        alcohol_consumption=st.selectbox("Consumo de bebidas alcoólicas",["yes","no"])
-        physical_activity_frequency=st.number_input("Frequência de atividade física (0-3)", min_value=0, max_value=3,step=1)
-        time_spent_exercising=st.number_input("Tempo gasto em atividades físicas (0-3)", min_value=0, max_value=3,step=1)
-        time_spent_sitting=st.selectbox("Frequencia em atividades sedentárias (1-3)",['Sometimes', 'Frequently', 'Always', 'no'])
+        water_intake=st.number_input("Consumo de agua diario (1-3)", min_value=1, max_value=3,step=1)
+        alcohol_consumption=st.selectbox("Consumo de bebidas alcoolicas",["yes","no"])
+        physical_activity_frequency=st.number_input("Frequencia de atividade fisica (0-3)", min_value=0, max_value=3,step=1)
+        time_spent_exercising=st.number_input("Tempo gasto em atividades fisicas (0-3)", min_value=0, max_value=3,step=1)
+        time_spent_sitting=st.selectbox("Frequencia em atividades sedentarias (1-3)",['Sometimes', 'Frequently', 'Always', 'no'])
         transportation_mode=st.selectbox("Meio de transporte utilizado",["Automobile","Motorbike","Bike","Public_Transportation","Walking"])
 
 
 
 
 
-        submit_button=st.form_submit_button("Calcular nível de obesidade")
+        submit_button=st.form_submit_button("Calcular nivel de obesidade")
 
 
 
@@ -73,17 +85,17 @@ with tab_simulador:
             'Gender':[gender],
             'Age':[age],
             'family_history':[family_history],
-            'Consumo de alimentos com alto teor calórico':[frequent_fast_food],
-            'Frequência de consumo de vegetais':[frequent_vegetables],
-            'Número de refeições por dia':[number_of_meals],
-            'Consumo de alimentos entre as refeições':[food_between_meals],
+            COL_FAVC:[frequent_fast_food],
+            COL_FCVC:[frequent_vegetables],
+            COL_NCP:[number_of_meals],
+            COL_CAEC:[food_between_meals],
             'Fuma':[smokes],
-            'Consumo de água diário':[water_intake],
-            'Consumo de bebidas alcoólicas':[alcohol_consumption],
-            'Frequência de atividade física':[physical_activity_frequency],
-            'Tempo gasto em atividades físicas':[time_spent_exercising],
-            'Tempo gasto em atividades sedentárias':[time_spent_sitting],
-            'Meio de transporte utilizado':[transportation_mode]
+            COL_CH2O:[water_intake],
+            COL_SCC:[alcohol_consumption],
+            COL_FAF:[physical_activity_frequency],
+            COL_TUE:[time_spent_exercising],
+            COL_CALC:[time_spent_sitting],
+            COL_MTRANS:[transportation_mode]
         })
 
 
@@ -92,26 +104,26 @@ with tab_simulador:
         try:
             prediction= pipeline.predict(input_data)[0]
 
-            st.success(f"Resultado da análise:{prediction}")
+            st.success(f"Resultado da analise: {prediction}")
 
             if prediction in (0,1,2):
-                st.info("Nível de obesidade baixo. Mantenha um estilo de vida saudável!")
+                st.info("Nivel de obesidade baixo. Mantenha um estilo de vida saudavel!")
             elif prediction ==3:
-                st.info("Nível de obesidade moderado. Considere adotar hábitos mais saudáveis.")
+                st.info("Nivel de obesidade moderado. Considere adotar habitos mais saudaveis.")
             elif prediction in (4,5,6):
-                st.warning("Recomenda-se consultar um profissional de saúde para orientação adequada.")
+                st.warning("Recomenda-se consultar um profissional de saude para orientacao adequada.")
 
     
         except Exception as e:
             
 
-            st.error(f"Ocorreu um erro durante a predição: {e,prediction}")
+            st.error(f"Ocorreu um erro durante a predicao: {e,prediction}")
             st.warning("Por favor, verifique os dados e tente novamente.")
 
 
 
 # ==============================================================================
-# ABA 2: DASHBOARD DINÂMICO
+# ABA 2: DASHBOARD DINAMICO
 # ==============================================================================
 with tab_dashboard:
 
@@ -125,19 +137,19 @@ with tab_dashboard:
     feature_names = step_preprocessor.get_feature_names_out()
     feature_label_map = {
         "scaler__Age": "Idade",
-        "scaler__Frequência de consumo de vegetais": "Frequencia de vegetais",
-        "scaler__Número de refeições por dia": "Numero de refeicoes/dia",
-        "scaler__Consumo de água diário": "Consumo de agua diario",
-        "scaler__Frequência de atividade física": "Frequencia de atividade fisica",
-        "scaler__Tempo gasto em atividades físicas": "Tempo em atividade fisica",
+        f"scaler__{COL_FCVC}": "Frequencia de vegetais",
+        f"scaler__{COL_NCP}": "Numero de refeicoes/dia",
+        f"scaler__{COL_CH2O}": "Consumo de agua diario",
+        f"scaler__{COL_FAF}": "Frequencia de atividade fisica",
+        f"scaler__{COL_TUE}": "Tempo em atividade fisica",
         "categorical__Gender": "Genero",
         "categorical__family_history": "Historico familiar",
-        "categorical__Consumo de alimentos com alto teor calórico": "Fast food frequente",
+        f"categorical__{COL_FAVC}": "Fast food frequente",
         "categorical__Fuma": "Fuma",
-        "categorical__Consumo de bebidas alcoólicas": "Consumo de alcool",
-        "categorical__Meio de transporte utilizado": "Meio de transporte",
-        "categorical_order__Consumo de alimentos entre as refeições": "Comer entre refeicoes",
-        "categorical_order__Tempo gasto em atividades sedentárias": "Tempo sedentario",
+        f"categorical__{COL_SCC}": "Consumo de alcool",
+        f"categorical__{COL_MTRANS}": "Meio de transporte",
+        f"categorical_order__{COL_CAEC}": "Comer entre refeicoes",
+        f"categorical_order__{COL_CALC}": "Tempo sedentario",
     }
     # Grafico 1: Importancia das features
     st.subheader("1. O que mais impacta o risco?")
@@ -213,9 +225,9 @@ with tab_dashboard:
     }
 
     # localizar colunas
-    col_faf = next((c for c in data.columns if "atividade" in c.lower() and "frequ" in c.lower()), None)
-    col_ch2o = next((c for c in data.columns if "agua" in c.lower()), None)
-    col_tue = next((c for c in data.columns if "tempo gasto em atividades fisicas" in c.lower()), None)
+    col_faf = COL_FAF if COL_FAF in data.columns else None
+    col_ch2o = COL_CH2O if COL_CH2O in data.columns else None
+    col_tue = COL_TUE if COL_TUE in data.columns else None
     col_fh = "family_history" if "family_history" in data.columns else None
 
     df_plot = data.copy()
@@ -284,3 +296,10 @@ with tab_dashboard:
         st.caption(
             "Interpretacao: mais tempo em telas tende a acompanhar niveis mais altos."
         )
+
+    st.subheader("4. Insights praticos para equipe medica")
+    st.markdown(
+        "- Triagem precoce: pacientes com historico familiar + baixa atividade fisica merecem acompanhamento mais proximo.\n"
+        "- Prevencao simples: aumento de agua e reducao do tempo em telas sao acoes de baixo custo.\n"
+        "- Educacao em saude: reforcar habitos saudaveis pode reduzir risco em grupos vulneraveis."
+    )
