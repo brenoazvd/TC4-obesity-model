@@ -61,15 +61,22 @@ with tab_simulador:
 
         family_history= st.selectbox("Historico familiar de sobrepeso",["yes","no"])
         frequent_fast_food= st.selectbox("Consumo frequente de fast food",["yes","no"])
-        frequent_vegetables= st.number_input("Consumo frequente de vegetais (1-3)", min_value=1, max_value=3,step=1)
-        number_of_meals = st.number_input("Numero de refeicoes por dia (1-3)", min_value=1, max_value=3,step=1)
+        escala_1_3 = {"Baixo": 1, "Medio": 2, "Alto": 3}
+        escala_0_3 = {"Nenhum": 0, "Baixo": 1, "Medio": 2, "Alto": 3}
+        frequent_vegetables_label = st.selectbox("Consumo frequente de vegetais", list(escala_1_3.keys()))
+        frequent_vegetables = escala_1_3[frequent_vegetables_label]
+        number_of_meals_label = st.selectbox("Numero de refeicoes por dia", list(escala_1_3.keys()))
+        number_of_meals = escala_1_3[number_of_meals_label]
         food_between_meals=st.selectbox("Consumo de alimentos entre as refeicoes",["Sometimes","Frequently","Always","no"])
         smokes=st.selectbox("Fuma",["yes","no"])
-        water_intake=st.number_input("Consumo de agua diario (1-3)", min_value=1, max_value=3,step=1)
+        water_intake_label = st.selectbox("Consumo de agua diario", list(escala_1_3.keys()))
+        water_intake = escala_1_3[water_intake_label]
         alcohol_consumption=st.selectbox("Consumo de bebidas alcoolicas",["yes","no"])
-        physical_activity_frequency=st.number_input("Frequencia de atividade fisica (0-3)", min_value=0, max_value=3,step=1)
-        time_spent_exercising=st.number_input("Tempo gasto em atividades fisicas (0-3)", min_value=0, max_value=3,step=1)
-        time_spent_sitting=st.selectbox("Frequencia em atividades sedentarias (1-3)",['Sometimes', 'Frequently', 'Always', 'no'])
+        physical_activity_frequency_label = st.selectbox("Frequencia de atividade fisica", list(escala_0_3.keys()))
+        physical_activity_frequency = escala_0_3[physical_activity_frequency_label]
+        time_spent_exercising_label = st.selectbox("Tempo gasto em atividades fisicas", list(escala_0_3.keys()))
+        time_spent_exercising = escala_0_3[time_spent_exercising_label]
+        time_spent_sitting=st.selectbox("Frequencia em atividades sedentarias",['Sometimes', 'Frequently', 'Always', 'no'])
         transportation_mode=st.selectbox("Meio de transporte utilizado",["Automobile","Motorbike","Bike","Public_Transportation","Walking"])
 
 
@@ -103,8 +110,17 @@ with tab_simulador:
 
         try:
             prediction= pipeline.predict(input_data)[0]
-
-            st.success(f"Resultado da analise: {prediction}")
+            class_map_pt = {
+                0: "Abaixo do peso",
+                1: "Peso normal",
+                2: "Sobrepeso I",
+                3: "Sobrepeso II",
+                4: "Obesidade I",
+                5: "Obesidade II",
+                6: "Obesidade III",
+            }
+            pred_label = class_map_pt.get(int(prediction), str(prediction))
+            st.success(f"Resultado da analise: {pred_label}")
 
             if prediction in (0,1,2):
                 st.info("Nivel de obesidade baixo. Mantenha um estilo de vida saudavel!")
@@ -254,12 +270,13 @@ with tab_dashboard:
         tab_ch2o = tab_ch2o.reindex(index=order_pt, fill_value=0)
         fig_ch2o, ax_ch2o = plt.subplots(figsize=(10, 4))
         ch2o_colors = ["#e0f3f8", "#abd9e9", "#74add1"]
+        tab_ch2o = tab_ch2o.rename(columns={1: "Baixo", 2: "Medio", 3: "Alto"})
         tab_ch2o.plot(kind="bar", stacked=True, ax=ax_ch2o, color=ch2o_colors, legend=True)
         ax_ch2o.set_xlabel("Nivel de obesidade")
         ax_ch2o.set_ylabel("% das pessoas")
         ax_ch2o.set_title("Obesidade x consumo de agua")
         ax_ch2o.tick_params(axis="x", labelrotation=20)
-        ax_ch2o.legend(title="Consumo de agua (1-3)", loc="upper right")
+        ax_ch2o.legend(title="Consumo de agua", loc="upper right")
         st.pyplot(fig_ch2o)
         st.caption(
             "Interpretacao: baixo consumo hidrico aparece mais em niveis elevados."
