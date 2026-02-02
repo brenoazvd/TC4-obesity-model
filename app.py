@@ -153,7 +153,7 @@ with tab_dashboard:
     ax1.set_xlabel("Importancia (quanto maior, mais influencia)")
     ax1.set_ylabel("Fator")
     st.pyplot(fig1)
-    st.caption("Fatores com maior influencia no resultado (nao indica causalidade).")
+    st.caption("Este grafico mostra o que mais pesa no resultado (nao significa causa).")
     top3 = df_imp['Feature_label'].head(3).tolist()
     st.markdown(
         "Insights (equipe medica):\n"
@@ -187,7 +187,7 @@ with tab_dashboard:
     ax2.set_title("Distribuicao das classes na base")
     ax2.tick_params(axis="x", labelrotation=20)
     st.pyplot(fig2)
-    st.caption("Classes mais frequentes podem influenciar a predicao do modelo.")
+    st.caption("Se uma categoria aparece muito, o resultado tende a puxar mais para ela.")
 
     # 1. Configurar o que queremos ver
     # Usar indices para evitar erro de nome nas features
@@ -215,6 +215,6 @@ with tab_dashboard:
             ax=ax
         )
         st.pyplot(fig)
-        st.caption("Grafico de dependencia parcial para duas variaveis chave.")
+        st.caption("Mostra como dois fatores mudam o resultado previsto.")
     except Exception as e:
         st.warning(f"Nao foi possivel gerar o grafico de dependencia parcial: {e}")
