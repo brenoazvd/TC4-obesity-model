@@ -189,32 +189,41 @@ with tab_dashboard:
     st.pyplot(fig2)
     st.caption("Se uma categoria aparece muito, o resultado tende a puxar mais para ela.")
 
-    # 1. Configurar o que queremos ver
-    # Usar indices para evitar erro de nome nas features
-    nomes_features = step_preprocessor.get_feature_names_out()
-    nomes_lower = [n.lower() for n in nomes_features]
-    idx_vegetais = next((i for i, n in enumerate(nomes_lower) if "vegetais" in n), None)
-    idx_atividade = next((i for i, n in enumerate(nomes_lower) if "atividade" in n and "sedent" not in n), None)
-    pdp_features = [i for i in [idx_atividade, idx_vegetais] if i is not None]
-    if len(pdp_features) < 2:
-        pdp_features = list(range(min(2, len(nomes_features))))
+    # 3. Relacao simples entre habitos e nivel de obesidade
+    st.subheader("3. Relacao simples entre habitos e nivel de obesidade")
+    st.caption("Media do nivel de obesidade por habito (visao simples).")
+    # localizar colunas de forma robusta
+    cols_lower = {c.lower(): c for c in data.columns}
+    col_faf = next((c for c in data.columns if "atividade" in c.lower() and "frequ" in c.lower()), None)
+    col_fcvc = next((c for c in data.columns if "vegetais" in c.lower()), None)
+    if col_faf and col_fcvc:
+        # ordenar classes de obesidade para um score simples
+        class_order = [
+            "Insufficient_Weight",
+            "Normal_Weight",
+            "Overweight_Level_I",
+            "Overweight_Level_II",
+            "Obesity_Type_I",
+            "Obesity_Type_II",
+            "Obesity_Type_III",
+        ]
+        score_map = {c: i for i, c in enumerate(class_order)}
+        data_score = data.copy()
+        data_score["obesity_score"] = data_score["Obesity"].map(score_map)
 
-    # 2. Plotar
-    fig, ax = plt.subplots(figsize=(10, 6))
-    X_sample = X.sample(n=min(500, len(X)), random_state=42)
+        fig3, ax3 = plt.subplots(figsize=(10, 4))
+        sns.barplot(data=data_score, x=col_faf, y="obesity_score", ax=ax3, palette="viridis", ci=None)
+        ax3.set_xlabel("Frequencia de atividade fisica")
+        ax3.set_ylabel("Nivel medio de obesidade")
+        ax3.set_title("Atividade fisica x nivel medio")
+        st.pyplot(fig3)
 
-    # A classe 6 e a Obesidade Tipo III (o caso grave)
-    # Se o seu modelo for binario ou diferente, ajuste o target.
-    try:
-        PartialDependenceDisplay.from_estimator(
-            step_model,                # Sua Random Forest
-            step_preprocessor.transform(X_sample), # Dados transformados (amostra)
-            features=pdp_features, # Apenas duas features para nao travar
-            feature_names=nomes_features, # Nomes das colunas
-            target=6, # Focando na Classe 6 (Obesidade Grave)
-            ax=ax
-        )
-        st.pyplot(fig)
-        st.caption("Mostra como dois fatores mudam o resultado previsto.")
-    except Exception as e:
-        st.warning(f"Nao foi possivel gerar o grafico de dependencia parcial: {e}")
+        fig4, ax4 = plt.subplots(figsize=(10, 4))
+        sns.barplot(data=data_score, x=col_fcvc, y="obesity_score", ax=ax4, palette="viridis", ci=None)
+        ax4.set_xlabel("Frequencia de consumo de vegetais")
+        ax4.set_ylabel("Nivel medio de obesidade")
+        ax4.set_title("Vegetais x nivel medio")
+        st.pyplot(fig4)
+        st.caption("Quanto menor o nivel medio, melhor. Grafico serve como indicio, nao prova causa.")
+    else:
+        st.warning("Nao foi possivel localizar as colunas de atividade fisica e vegetais na base.")
