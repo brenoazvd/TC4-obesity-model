@@ -319,7 +319,7 @@ with tab_dashboard:
             sns.barplot(x=perc_sim.index, y=perc_sim.values, ax=ax_fh, palette="Greens")
             ax_fh.set_xlabel("Nivel de obesidade")
             ax_fh.set_ylabel("% com historico familiar")
-        ax_fh.set_title("Historico familiar por nivel de obesidade")
+            ax_fh.set_title("Historico familiar por nivel de obesidade")
             ax_fh.tick_params(axis="x", labelrotation=20)
             st.pyplot(fig_fh)
             st.caption(
