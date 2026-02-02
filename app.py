@@ -189,71 +189,95 @@ with tab_dashboard:
     st.pyplot(fig2)
     st.caption("Se uma categoria aparece muito, o resultado tende a puxar mais para ela.")
 
-    # 3. Relacao simples entre habitos e nivel de obesidade
-    st.subheader("3. Relacao simples entre habitos e nivel de obesidade")
-    st.caption("Distribuicao percentual por habito (mais facil de ler).")
-    # localizar colunas de forma robusta
-    cols_lower = {c.lower(): c for c in data.columns}
+    # 3. Relacao entre habitos e nivel de obesidade (insights clinicos)
+    st.subheader("3. Relacoes entre habitos e nivel de obesidade")
+    st.caption("Graficos simples + interpretacao direta para equipe de saude.")
+
+    class_order = [
+        "Insufficient_Weight",
+        "Normal_Weight",
+        "Overweight_Level_I",
+        "Overweight_Level_II",
+        "Obesity_Type_I",
+        "Obesity_Type_II",
+        "Obesity_Type_III",
+    ]
+    class_map_pt = {
+        "Insufficient_Weight": "Abaixo do peso",
+        "Normal_Weight": "Peso normal",
+        "Overweight_Level_I": "Sobrepeso I",
+        "Overweight_Level_II": "Sobrepeso II",
+        "Obesity_Type_I": "Obesidade I",
+        "Obesity_Type_II": "Obesidade II",
+        "Obesity_Type_III": "Obesidade III",
+    }
+
+    # localizar colunas
     col_faf = next((c for c in data.columns if "atividade" in c.lower() and "frequ" in c.lower()), None)
-    col_fcvc = next((c for c in data.columns if "vegetais" in c.lower()), None)
-    if col_faf and col_fcvc:
-        # ordenar classes de obesidade para um score simples
-        class_order = [
-            "Insufficient_Weight",
-            "Normal_Weight",
-            "Overweight_Level_I",
-            "Overweight_Level_II",
-            "Obesity_Type_I",
-            "Obesity_Type_II",
-            "Obesity_Type_III",
-        ]
-        score_map = {c: i for i, c in enumerate(class_order)}
-        data_score = data.copy()
-        data_score["obesity_score"] = data_score["Obesity"].map(score_map)
+    col_ch2o = next((c for c in data.columns if "agua" in c.lower()), None)
+    col_tue = next((c for c in data.columns if "tempo gasto em atividades fisicas" in c.lower()), None)
+    col_fh = "family_history" if "family_history" in data.columns else None
 
-        # Agrupar por faixas discretas para evitar poluicao visual
-        df_plot = data.copy()
-        df_plot["faf_bin"] = df_plot[col_faf].round().clip(0, 3).astype(int)
-        df_plot["fcvc_bin"] = df_plot[col_fcvc].round().clip(1, 3).astype(int)
+    df_plot = data.copy()
+    df_plot["Obesity_pt"] = df_plot["Obesity"].map(class_map_pt).fillna(df_plot["Obesity"].astype(str))
+    order_pt = [class_map_pt[c] for c in class_order]
 
-        class_map_pt = {
-            "Insufficient_Weight": "Abaixo do peso",
-            "Normal_Weight": "Peso normal",
-            "Overweight_Level_I": "Sobrepeso I",
-            "Overweight_Level_II": "Sobrepeso II",
-            "Obesity_Type_I": "Obesidade I",
-            "Obesity_Type_II": "Obesidade II",
-            "Obesity_Type_III": "Obesidade III",
-        }
-        df_plot["Obesity_pt"] = df_plot["Obesity"].map(class_map_pt).fillna(df_plot["Obesity"].astype(str))
+    # 2) Obesidade x atividade fisica (FAF) - boxplot
+    if col_faf:
+        fig_faf, ax_faf = plt.subplots(figsize=(10, 4))
+        sns.boxplot(data=df_plot, x="Obesity_pt", y=col_faf, order=order_pt, ax=ax_faf)
+        ax_faf.set_xlabel("Nivel de obesidade")
+        ax_faf.set_ylabel("Frequencia de atividade fisica")
+        ax_faf.set_title("Obesidade x atividade fisica")
+        ax_faf.tick_params(axis="x", labelrotation=20)
+        st.pyplot(fig_faf)
+        st.caption(
+            "Interpretacao: niveis mais altos tendem a mostrar menor atividade fisica."
+        )
 
-        # Linhas com poucos niveis para facilitar leitura
-        niveis_foco = ["Obesidade III", "Obesidade II", "Sobrepeso II"]
+    # 3) Obesidade x consumo de agua (CH2O) - barras empilhadas
+    if col_ch2o:
+        df_plot["ch2o_bin"] = df_plot[col_ch2o].round().clip(1, 3).astype(int)
+        tab_ch2o = pd.crosstab(df_plot["Obesity_pt"], df_plot["ch2o_bin"], normalize="index") * 100
+        tab_ch2o = tab_ch2o.reindex(index=order_pt, fill_value=0)
+        fig_ch2o, ax_ch2o = plt.subplots(figsize=(10, 4))
+        tab_ch2o.plot(kind="bar", stacked=True, ax=ax_ch2o, colormap="Blues", legend=True)
+        ax_ch2o.set_xlabel("Nivel de obesidade")
+        ax_ch2o.set_ylabel("% das pessoas")
+        ax_ch2o.set_title("Obesidade x consumo de agua")
+        ax_ch2o.tick_params(axis="x", labelrotation=20)
+        ax_ch2o.legend(title="Consumo de agua (1-3)", loc="upper right")
+        st.pyplot(fig_ch2o)
+        st.caption(
+            "Interpretacao: baixo consumo hidrico aparece mais em niveis elevados."
+        )
 
-        fig3, ax3 = plt.subplots(figsize=(8, 4))
-        tab_faf = pd.crosstab(df_plot["faf_bin"], df_plot["Obesity_pt"], normalize="index") * 100
-        tab_faf = tab_faf.reindex(columns=class_map_pt.values(), fill_value=0)
-        for nivel in niveis_foco:
-            if nivel in tab_faf.columns:
-                ax3.plot(tab_faf.index, tab_faf[nivel], marker="o", label=nivel)
-        ax3.set_xlabel("Atividade fisica (0-3)")
-        ax3.set_ylabel("% das pessoas")
-        ax3.set_title("Atividade fisica x niveis mais altos")
-        ax3.legend()
-        st.pyplot(fig3)
+    # 4) Obesidade x historico familiar - barras agrupadas
+    if col_fh:
+        tab_fh = pd.crosstab(df_plot["Obesity_pt"], df_plot[col_fh], normalize="index") * 100
+        tab_fh = tab_fh.reindex(index=order_pt, fill_value=0)
+        tab_fh = tab_fh.rename(columns={"yes": "Sim", "no": "Nao"})
+        fig_fh, ax_fh = plt.subplots(figsize=(10, 4))
+        tab_fh.plot(kind="bar", ax=ax_fh, colormap="Greens", legend=True)
+        ax_fh.set_xlabel("Nivel de obesidade")
+        ax_fh.set_ylabel("% das pessoas")
+        ax_fh.set_title("Obesidade x historico familiar")
+        ax_fh.tick_params(axis="x", labelrotation=20)
+        ax_fh.legend(title="Historico familiar", loc="upper right")
+        st.pyplot(fig_fh)
+        st.caption(
+            "Interpretacao: historico familiar aparece com maior frequencia em casos mais graves."
+        )
 
-        fig4, ax4 = plt.subplots(figsize=(8, 4))
-        tab_fcvc = pd.crosstab(df_plot["fcvc_bin"], df_plot["Obesity_pt"], normalize="index") * 100
-        tab_fcvc = tab_fcvc.reindex(columns=class_map_pt.values(), fill_value=0)
-        for nivel in niveis_foco:
-            if nivel in tab_fcvc.columns:
-                ax4.plot(tab_fcvc.index, tab_fcvc[nivel], marker="o", label=nivel)
-        ax4.set_xlabel("Consumo de vegetais (1-3)")
-        ax4.set_ylabel("% das pessoas")
-        ax4.set_title("Vegetais x niveis mais altos")
-        ax4.legend()
-        st.pyplot(fig4)
-
-        st.caption("Linhas mostram a porcentagem de niveis mais altos por habito.")
-    else:
-        st.warning("Nao foi possivel localizar as colunas de atividade fisica e vegetais na base.")
+    # 5) Obesidade x uso de tecnologia (TUE) - boxplot
+    if col_tue:
+        fig_tue, ax_tue = plt.subplots(figsize=(10, 4))
+        sns.boxplot(data=df_plot, x="Obesity_pt", y=col_tue, order=order_pt, ax=ax_tue)
+        ax_tue.set_xlabel("Nivel de obesidade")
+        ax_tue.set_ylabel("Tempo em telas (TUE)")
+        ax_tue.set_title("Obesidade x uso de tecnologia (TUE)")
+        ax_tue.tick_params(axis="x", labelrotation=20)
+        st.pyplot(fig_tue)
+        st.caption(
+            "Interpretacao: mais tempo em telas tende a acompanhar niveis mais altos."
+        )
