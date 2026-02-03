@@ -327,7 +327,7 @@ with tab_dashboard:
         ax_ch2o.legend(title="Consumo de agua", loc="upper right")
         st.pyplot(fig_ch2o)
         st.caption(
-            "Interpretacao: baixo consumo hidrico aparece mais em niveis elevados."
+            "Interpretacao: nao ha tendencia linear; no agregado, ha maior proporcao de consumo alto nos niveis de obesidade, mas varia por nivel."
         )
 
     # 4) Obesidade x historico familiar - % com historico familiar
